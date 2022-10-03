@@ -1,0 +1,188 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <groupId>com.itmaspro</groupId>
+    <artifactId>itmaspro-customers</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <compiler-plugin.version>3.10.1</compiler-plugin.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <payara-micro.version>5.2022.3</payara-micro.version>
+        <javaee.version>8.0.0</javaee.version>
+        <jackson.version>2.13.4</jackson.version>
+        <h2.version>2.1.214</h2.version>
+        <mapstruct.version>1.5.2.Final</mapstruct.version>
+        <asciidoctor.maven.plugin.version>2.2.2</asciidoctor.maven.plugin.version>
+        <asciidoctorj.version>2.5.6</asciidoctorj.version>
+        <jruby.version>9.3.8.0</jruby.version>
+    </properties>
+      <dependencies>
+        <dependency>
+         <groupId>jakarta.platform</groupId>
+   			 <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>${javaee.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fish.payara.extras</groupId>
+            <artifactId>payara-embedded-web</artifactId>
+            <version>${payara-micro.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+          <dependency>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct</artifactId>
+              <version>${mapstruct.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.24</version>
+              <scope>provided</scope>
+          </dependency>
+          <!-- Comment this section to use the default jruby artifact provided by the plugin -->
+          <dependency>
+              <groupId>org.jruby</groupId>
+              <artifactId>jruby</artifactId>
+              <version>${jruby.version}</version>
+          </dependency>
+          <!-- Comment this section to use the default AsciidoctorJ artifact provided by the plugin -->
+          <dependency>
+              <groupId>org.asciidoctor</groupId>
+              <artifactId>asciidoctorj</artifactId>
+              <version>${asciidoctorj.version}</version>
+          </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <parameters>true</parameters>
+                    <compilerArgs>
+                        <!-- mapstruct, please generate all classes as CDI beans -->
+                        <arg>-Amapstruct.defaultComponentModel=cdi</arg>
+               </compilerArgs>
+               <annotationProcessorPaths>
+                   <path>
+                       <groupId>org.mapstruct</groupId>
+                       <artifactId>mapstruct-processor</artifactId>
+                       <version>${mapstruct.version}</version>
+                   </path>
+                   <path>
+                       <groupId>org.projectlombok</groupId>
+                       <artifactId>lombok</artifactId>
+                       <version>1.18.24</version>
+                   </path>
+                   <path>
+                       <groupId>org.projectlombok</groupId>
+                       <artifactId>lombok-mapstruct-binding</artifactId>
+                       <version>0.2.0</version>
+                   </path>
+               </annotationProcessorPaths>
+           </configuration>
+       </plugin>
+       <plugin>
+           <groupId>org.asciidoctor</groupId>
+           <artifactId>asciidoctor-maven-plugin</artifactId>
+           <version>${asciidoctor.maven.plugin.version}</version>
+           <configuration>
+               <sourceDirectory>src/docs/asciidoc</sourceDirectory>
+               <!-- If you set baseDir to ${project.basedir}, top-level includes are resolved relative to the project root -->
+                    <!--
+                    <baseDir>${project.basedir}</baseDir>
+                    -->
+                    <!-- Attributes common to all output formats -->
+                    <attributes>
+                        <endpoint-url>http://example.org</endpoint-url>
+                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
+                        <project-version>${project.version}</project-version>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>asciidoc-to-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <!--
+                            Scenarios for linking vs embedding assets:
+                            Link to both stylesheets and images::
+                              - don't set embedAssets option
+                              - set linkcss attribute to true
+                              - set imagesdir attribute to path relative to AsciiDoc source file
+                              <attributes>
+                                  <linkcss>true</linkcss>
+                                  <imagesdir>./images</imagesdir>
+                              </attributes>
+                            Embed stylesheets and images::
+                              - set embedAssets option to true
+                              - don't set linkcss attribute
+                              - set imagesdir attribute to path relative to project root
+                              <embedAssets>true</embedAssets>
+                              <attributes>
+                                  <imagesdir>src/docs/asciidoc/images</imagesdir>
+                              </attributes>
+                            Link to stylesheets but embed images::
+                              - set embedAssets option to true
+                              - set linkcss attribute to true
+                              - set imagesdir attribute to path relative to project root
+                              <embedAssets>true</embedAssets>
+                              <attributes>
+                                  <linkcss>true</linkcss>
+                                  <imagesdir>src/docs/asciidoc/images</imagesdir>
+                              </attributes>
+                            Embed stylesheets but link images (default)::
+                              - don't set embedAssets option
+                              - don't set linkcss attribute
+                              - set imagesdir attribute to path relative to AsciiDoc source file
+                              <attributes>
+                                  <imagesdir>./images</imagesdir>
+                              </attributes>
+                            IMPORTANT: When you enable image embedding, you must qualify the path with imagesdir, as shown above.
+                            -->
+                            <attributes>
+                                <source-highlighter>rouge</source-highlighter>
+                                <imagesdir>./images</imagesdir>
+                                <toc>left</toc>
+                                <icons>font</icons>
+                                <sectanchors>true</sectanchors>
+                                <!-- set the idprefix to blank -->
+                                <idprefix/>
+                                <idseparator>-</idseparator>
+                                <docinfo1>true</docinfo1>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
