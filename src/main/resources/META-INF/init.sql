@@ -1,0 +1,2 @@
+INSERT INTO customers (id, first_name, last_name, status, email, date_of_birth, created_at, updated_at) VALUES ('1234', 'Mathias', 'Raum', 'ACTIVE', 'mathias.raum@maspromastouri.de',current_timestamp,current_timestamp, current_timestamp);
+INSERT INTO customers (id, first_name, last_name, status, email, date_of_birth, created_at, updated_at) VALUES ('1235', 'Johanna', 'Raum', 'ACTIVE', 'johanna.raum@maspromastouri.de', current_timestamp,current_timestamp,current_timestamp);
